@@ -37,65 +37,130 @@ if (!deviceId) {
 }
 
 console.log("Identifiant appareil :", deviceId);
-  
-  // Coordonnées du 84 boulevard du Montparnasse, 75014 Paris
+
+// Coordonnées du 84 boulevard du Montparnasse, 75014 Paris
 const SITE_LAT = 48.84302;
 const SITE_LON = 2.32634;
+
+// TEMPORAIRE POUR TEST À DOMICILE
 const MAX_DISTANCE_M = 10000;
-// Évite de valider une position trop imprécise.
+
+// Précision GPS maximale acceptée
 const MAX_ACCURACY_M = 10000;
 
 function distanceM(lat1, lon1, lat2, lon2) {
   const R = 6371000;
   const toRad = x => x * Math.PI / 180;
-  const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
-  const a = Math.sin(dLat/2)**2 +
-    Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
-  return 2*R*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) *
+    Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) ** 2;
+
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function show(text, cls){
-  const s=document.getElementById("status");
-  s.style.display="block";
-  s.className=cls;
-  s.textContent=text;
+function show(text, cls) {
+  const s = document.getElementById("status");
+  s.style.display = "block";
+  s.className = cls;
+  s.textContent = text;
 }
 
 document.getElementById("check").onclick = () => {
-  document.getElementById("go").style.display="none";
+
+  document.getElementById("go").style.display = "none";
+
   if (!navigator.geolocation) {
-    show("La géolocalisation n'est pas disponible sur cet appareil.", "bad");
+    show(
+      "La géolocalisation n'est pas disponible sur cet appareil.",
+      "bad"
+    );
     return;
   }
+
   show("Localisation en cours…", "info");
-  navigator.geolocation.getCurrentPosition(pos => {
-    const accuracy = pos.coords.accuracy;
-    const d = distanceM(pos.coords.latitude,pos.coords.longitude,SITE_LAT,SITE_LON);
 
-    if (accuracy > MAX_ACCURACY_M) {
-      show("Position trop imprécise ("+Math.round(accuracy)+" m). Activez la localisation précise puis réessayez.", "bad");
-      return;
+  navigator.geolocation.getCurrentPosition(
+
+    pos => {
+
+      const accuracy = pos.coords.accuracy;
+
+      const d = distanceM(
+        pos.coords.latitude,
+        pos.coords.longitude,
+        SITE_LAT,
+        SITE_LON
+      );
+
+      if (accuracy > MAX_ACCURACY_M) {
+
+        show(
+          "Position trop imprécise (" +
+          Math.round(accuracy) +
+          " m). Activez la localisation précise puis réessayez.",
+          "bad"
+        );
+
+        return;
+      }
+
+      if (d <= MAX_DISTANCE_M) {
+
+        show(
+          "Présence sur site confirmée. Distance estimée : " +
+          Math.round(d) +
+          " m.",
+          "ok"
+        );
+
+        const go = document.getElementById("go");
+
+        // Envoi automatique du Device ID vers Tally
+        go.href =
+          "https://tally.so/r/81BMvk?device_id=" +
+          encodeURIComponent(deviceId);
+
+        go.style.display = "block";
+
+      } else {
+
+        show(
+          "Émargement impossible : vous êtes à environ " +
+          Math.round(d) +
+          " m du site.",
+          "bad"
+        );
+      }
+    },
+
+    err => {
+
+      let msg = "Impossible d'obtenir votre position.";
+
+      if (err.code === 1)
+        msg = "Vous devez autoriser la localisation pour émarger.";
+
+      if (err.code === 2)
+        msg = "Position indisponible. Vérifiez que la localisation du téléphone est activée.";
+
+      if (err.code === 3)
+        msg = "La localisation a pris trop de temps. Réessayez.";
+
+      show(msg, "bad");
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
     }
-if (d <= MAX_DISTANCE_M) {
-  show("Présence sur site confirmée. Distance estimée : "+Math.round(d)+" m.", "ok");
-
-  const go = document.getElementById("go");
-
-  // Transmet l'identifiant de l'appareil au champ caché Tally
-  go.href = "https://tally.so/r/81BMvk?device_id=" + encodeURIComponent(deviceId);
-
-  go.style.display = "block";
-}
-    } else {
-      show("Émargement impossible : vous êtes à environ "+Math.round(d)+" m du site.", "bad");
-    }
-  }, err => {
-    let msg="Impossible d'obtenir votre position.";
-    if(err.code===1) msg="Vous devez autoriser la localisation pour émarger.";
-    if(err.code===2) msg="Position indisponible. Vérifiez que la localisation du téléphone est activée.";
-    if(err.code===3) msg="La localisation a pris trop de temps. Réessayez.";
-    show(msg,"bad");
-  }, {enableHighAccuracy:true, timeout:15000, maximumAge:0});
+  );
 };
 </script>
 </body>

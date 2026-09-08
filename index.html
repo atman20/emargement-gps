@@ -41,9 +41,9 @@ console.log("Identifiant appareil :", deviceId);
   // Coordonnées du 84 boulevard du Montparnasse, 75014 Paris
 const SITE_LAT = 48.84302;
 const SITE_LON = 2.32634;
-const MAX_DISTANCE_M = 100;
+const MAX_DISTANCE_M = 10000;
 // Évite de valider une position trop imprécise.
-const MAX_ACCURACY_M = 100;
+const MAX_ACCURACY_M = 10000;
 
 function distanceM(lat1, lon1, lat2, lon2) {
   const R = 6371000;

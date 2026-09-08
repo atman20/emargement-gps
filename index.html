@@ -28,7 +28,17 @@ button,a.btn{display:block;width:100%;box-sizing:border-box;padding:15px;border:
 </div>
 
 <script>
-// Coordonnées du 84 boulevard du Montparnasse, 75014 Paris
+// Identifiant unique de ce navigateur/appareil
+let deviceId = localStorage.getItem("emargement_device_id");
+
+if (!deviceId) {
+  deviceId = crypto.randomUUID();
+  localStorage.setItem("emargement_device_id", deviceId);
+}
+
+console.log("Identifiant appareil :", deviceId);
+  
+  // Coordonnées du 84 boulevard du Montparnasse, 75014 Paris
 const SITE_LAT = 48.84302;
 const SITE_LON = 2.32634;
 const MAX_DISTANCE_M = 100;

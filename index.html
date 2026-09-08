@@ -121,12 +121,17 @@ document.getElementById("check").onclick = () => {
 
         const go = document.getElementById("go");
 
-        // Envoi automatique du Device ID vers Tally
-        go.href =
-          "https://tally.so/r/81BMvk?device_id=" +
-          encodeURIComponent(deviceId);
+go.style.display = "block";
 
-        go.style.display = "block";
+go.onclick = function(event) {
+  event.preventDefault();
+
+  const tallyUrl =
+    "https://tally.so/r/81BMvk?device_id=" +
+    encodeURIComponent(deviceId);
+
+  window.location.href = tallyUrl;
+};
 
       } else {
 

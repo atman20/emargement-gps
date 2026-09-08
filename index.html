@@ -76,9 +76,16 @@ document.getElementById("check").onclick = () => {
       show("Position trop imprécise ("+Math.round(accuracy)+" m). Activez la localisation précise puis réessayez.", "bad");
       return;
     }
-    if (d <= MAX_DISTANCE_M) {
-      show("Présence sur site confirmée. Distance estimée : "+Math.round(d)+" m.", "ok");
-      document.getElementById("go").style.display="block";
+if (d <= MAX_DISTANCE_M) {
+  show("Présence sur site confirmée. Distance estimée : "+Math.round(d)+" m.", "ok");
+
+  const go = document.getElementById("go");
+
+  // Transmet l'identifiant de l'appareil au champ caché Tally
+  go.href = "https://tally.so/r/81BMvk?device_id=" + encodeURIComponent(deviceId);
+
+  go.style.display = "block";
+}
     } else {
       show("Émargement impossible : vous êtes à environ "+Math.round(d)+" m du site.", "bad");
     }
